@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../api.js";
+import RideForm from "./RideForm.jsx";
 
 const APP_COLORS = { Rapido: "#F5C518", Uber: "#60A5FA", Other: "#9DA3C0" };
 const APP_ICONS  = { Rapido: "⚡", Uber: "🚗", Other: "🛺" };
@@ -17,6 +18,7 @@ function groupByDate(rides) {
 
 export default function RideTable({ rides, onChanged }) {
   const [deleting, setDeleting] = useState(null);
+  const [editing, setEditing] = useState(null);
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this ride?")) return;
@@ -95,6 +97,12 @@ export default function RideTable({ rides, onChanged }) {
                         <div className="tl-card-right">
                           <span className="tl-amount tl-amount-earn">₹{r.fare}</span>
                           <button
+                            className="tl-edit-btn"
+                            onClick={() => setEditing(r)}
+                            disabled={deleting === r._id}
+                            title="Edit"
+                          >✎</button>
+                          <button
                             className="tl-delete-btn"
                             onClick={() => handleDelete(r._id)}
                             disabled={deleting === r._id}
@@ -121,6 +129,21 @@ export default function RideTable({ rides, onChanged }) {
           </div>
         );
       })}
+
+      {editing && (
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setEditing(null)}>
+          <div className="modal">
+            <div className="modal-header">
+              <span className="modal-title">🛺 Edit Ride</span>
+              <button className="modal-close" onClick={() => setEditing(null)}>✕</button>
+            </div>
+            <RideForm 
+              initialData={editing} 
+              onSaved={() => { setEditing(null); onChanged(); }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

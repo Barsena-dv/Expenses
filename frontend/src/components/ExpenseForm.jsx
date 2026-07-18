@@ -12,8 +12,11 @@ function getNow() {
   return new Date().toTimeString().slice(0, 5);
 }
 
-export default function ExpenseForm({ defaultDate, onSaved }) {
-  const [form, setForm] = useState({
+export default function ExpenseForm({ defaultDate, initialData, onSaved }) {
+  const [form, setForm] = useState(initialData ? {
+    ...initialData,
+    date: initialData.date ? initialData.date.substring(0, 10) : defaultDate,
+  } : {
     date: defaultDate,
     time: getNow(),
     category: "Fuel",
@@ -31,8 +34,12 @@ export default function ExpenseForm({ defaultDate, onSaved }) {
     e.preventDefault();
     setSaving(true); setError("");
     try {
-      await api.post("/expenses", { ...form, amount: Number(form.amount) });
-      setForm((f) => ({ ...f, amount: "", notes: "", time: getNow() }));
+      if (initialData?._id) {
+        await api.put(`/expenses/${initialData._id}`, { ...form, amount: Number(form.amount) });
+      } else {
+        await api.post("/expenses", { ...form, amount: Number(form.amount) });
+        setForm((f) => ({ ...f, amount: "", notes: "", time: getNow() }));
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       onSaved();
@@ -90,7 +97,7 @@ export default function ExpenseForm({ defaultDate, onSaved }) {
         disabled={saving}
         style={{ marginTop: 4 }}
       >
-        {saving ? "Saving…" : saved ? "✓ Expense Saved!" : "Save Expense"}
+        {saving ? "Saving…" : saved ? (initialData ? "✓ Updated!" : "✓ Saved!") : (initialData ? "Update Expense" : "Save Expense")}
       </button>
     </form>
   );

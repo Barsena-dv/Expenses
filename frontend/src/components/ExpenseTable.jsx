@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../api.js";
+import ExpenseForm from "./ExpenseForm.jsx";
 
 const CAT_ICONS = {
   Fuel: "⛽", Food: "🍛", Maintenance: "🔧",
@@ -23,6 +24,7 @@ function groupByDate(items) {
 
 export default function ExpenseTable({ expenses, onChanged }) {
   const [deleting, setDeleting] = useState(null);
+  const [editing, setEditing] = useState(null);
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this expense?")) return;
@@ -103,6 +105,12 @@ export default function ExpenseTable({ expenses, onChanged }) {
                         <div className="tl-card-right">
                           <span className="tl-amount tl-amount-exp">₹{e.amount}</span>
                           <button
+                            className="tl-edit-btn"
+                            onClick={() => setEditing(e)}
+                            disabled={deleting === e._id}
+                            title="Edit"
+                          >✎</button>
+                          <button
                             className="tl-delete-btn"
                             onClick={() => handleDelete(e._id)}
                             disabled={deleting === e._id}
@@ -118,6 +126,21 @@ export default function ExpenseTable({ expenses, onChanged }) {
           </div>
         );
       })}
+
+      {editing && (
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setEditing(null)}>
+          <div className="modal">
+            <div className="modal-header">
+              <span className="modal-title">💸 Edit Expense</span>
+              <button className="modal-close" onClick={() => setEditing(null)}>✕</button>
+            </div>
+            <ExpenseForm 
+              initialData={editing} 
+              onSaved={() => { setEditing(null); onChanged(); }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

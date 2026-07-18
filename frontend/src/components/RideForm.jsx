@@ -9,8 +9,11 @@ function getNow() {
   return new Date().toTimeString().slice(0, 5);
 }
 
-export default function RideForm({ defaultDate, onSaved }) {
-  const [form, setForm] = useState({
+export default function RideForm({ defaultDate, initialData, onSaved }) {
+  const [form, setForm] = useState(initialData ? {
+    ...initialData,
+    date: initialData.date ? initialData.date.substring(0, 10) : defaultDate,
+  } : {
     date: defaultDate,
     time: getNow(),
     app: "Rapido",
@@ -33,8 +36,12 @@ export default function RideForm({ defaultDate, onSaved }) {
     e.preventDefault();
     setSaving(true); setError("");
     try {
-      await api.post("/rides", { ...form, km: Number(form.km), fare: Number(form.fare) });
-      setForm((f) => ({ ...f, from: "", to: "", km: "", fare: "", notes: "", time: getNow() }));
+      if (initialData?._id) {
+        await api.put(`/rides/${initialData._id}`, { ...form, km: Number(form.km), fare: Number(form.fare) });
+      } else {
+        await api.post("/rides", { ...form, km: Number(form.km), fare: Number(form.fare) });
+        setForm((f) => ({ ...f, from: "", to: "", km: "", fare: "", notes: "", time: getNow() }));
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       onSaved();
@@ -112,7 +119,7 @@ export default function RideForm({ defaultDate, onSaved }) {
         disabled={saving}
         style={{ marginTop: 4 }}
       >
-        {saving ? "Saving…" : saved ? "✓ Ride Saved!" : "Save Ride"}
+        {saving ? "Saving…" : saved ? (initialData ? "✓ Updated!" : "✓ Saved!") : (initialData ? "Update Ride" : "Save Ride")}
       </button>
     </form>
   );
