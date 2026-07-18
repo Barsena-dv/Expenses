@@ -79,13 +79,13 @@ export default function RideForm({ defaultDate, onSaved }) {
         </div>
         <div className="form-field">
           <label className="form-label">Distance (km)</label>
-          <input className="form-input" type="number" step="0.1" min="0" name="km" placeholder="0.0" value={form.km} onChange={handle} required />
+          <input className="form-input" type="number" step="any" min="0" name="km" placeholder="0.0" value={form.km} onChange={handle} required />
         </div>
       </div>
       <div className="form-row">
         <div className="form-field">
           <label className="form-label">Fare (₹)</label>
-          <input className="form-input" type="number" step="1" min="0" name="fare" placeholder="0" value={form.fare} onChange={handle} required />
+          <input className="form-input" type="number" step="any" min="0" name="fare" placeholder="0" value={form.fare} onChange={handle} required />
         </div>
         <div className="form-field">
           <label className="form-label">Payment Mode</label>

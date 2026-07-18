@@ -30,8 +30,12 @@ export default function Dashboard({ period }) {
       if (cancelled) return;
       setSummary(summaryData);
       const dim = daysInMonth(period.year, period.month);
-      const days = Array.from({ length: dim }, (_, i) => ({ day: i + 1, earning: 0, expense: 0 }));
-      rides.forEach((r) => { const d = new Date(r.date).getUTCDate(); days[d - 1].earning += r.fare; });
+      const days = Array.from({ length: dim }, (_, i) => ({ day: i + 1, earning: 0, expense: 0, km: 0 }));
+      rides.forEach((r) => { 
+        const d = new Date(r.date).getUTCDate(); 
+        days[d - 1].earning += r.fare; 
+        days[d - 1].km += (r.km || 0);
+      });
       expenses.forEach((e) => { const d = new Date(e.date).getUTCDate(); days[d - 1].expense += e.amount; });
       setDailySeries(days);
       setLoading(false);

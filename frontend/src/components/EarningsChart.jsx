@@ -16,6 +16,11 @@ const CustomTooltip = ({ active, payload, label }) => {
           {p.name}: ₹{p.value}
         </div>
       ))}
+      {payload[0] && payload[0].payload.km > 0 && (
+        <div style={{ color: "#4B90FF", fontFamily: "JetBrains Mono, monospace", marginTop: 4 }}>
+          Distance: {payload[0].payload.km.toFixed(1)} km
+        </div>
+      )}
     </div>
   );
 };

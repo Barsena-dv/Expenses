@@ -69,7 +69,7 @@ export default function ExpenseForm({ defaultDate, onSaved }) {
         </div>
         <div className="form-field">
           <label className="form-label">Amount (₹)</label>
-          <input className="form-input" type="number" step="1" min="0" name="amount" placeholder="0" value={form.amount} onChange={handle} required />
+          <input className="form-input" type="number" step="any" min="0" name="amount" placeholder="0" value={form.amount} onChange={handle} required />
         </div>
       </div>
       <div className="form-field">
