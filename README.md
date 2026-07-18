@@ -4,6 +4,10 @@ Full-stack web app to log Rapido/Uber rides and daily expenses, view auto-calcul
 
 **Stack:** React + Vite · Node.js + Express · MongoDB Atlas
 
+### Live Deployments
+- **Frontend App:** [https://expenses-d75u.vercel.app](https://expenses-d75u.vercel.app)
+- **Backend API:** [https://expenses-sepia-two.vercel.app](https://expenses-sepia-two.vercel.app)
+
 ---
 
 ## Project Structure
