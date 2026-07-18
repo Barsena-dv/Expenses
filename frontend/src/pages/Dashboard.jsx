@@ -3,6 +3,7 @@ import api from "../api.js";
 import SummaryCards from "../components/SummaryCards.jsx";
 import EarningsChart from "../components/EarningsChart.jsx";
 import AccountPieChart from "../components/AccountPieChart.jsx";
+import OpeningBalanceModal from "../components/OpeningBalanceModal.jsx";
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -17,6 +18,8 @@ export default function Dashboard({ period }) {
   const [summary, setSummary] = useState(null);
   const [dailySeries, setDailySeries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showOBModal, setShowOBModal] = useState(false);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,7 +45,7 @@ export default function Dashboard({ period }) {
     }
     load();
     return () => { cancelled = true; };
-  }, [period.month, period.year]);
+  }, [period.month, period.year, refresh]);
 
   const handleDownload = async () => {
     const res = await api.get("/export/month", { params: period, responseType: "blob" });
@@ -73,7 +76,10 @@ export default function Dashboard({ period }) {
           <h1 className="page-title">{monthName} {period.year}</h1>
           <div className="page-subtitle">Your monthly earnings overview</div>
         </div>
-        <div className="page-header-actions">
+        <div className="page-header-actions" style={{ display: "flex", gap: "8px" }}>
+          <button className="btn-ghost" onClick={() => setShowOBModal(true)} style={{ padding: "8px 12px", fontSize: 13, border: "1px solid var(--border)", borderRadius: "var(--r-md)", background: "transparent", color: "var(--text)", cursor: "pointer" }}>
+            ⚙️ Balances
+          </button>
           <button className="btn-download" onClick={handleDownload}>
             ⬇ Export Excel
           </button>
@@ -89,6 +95,17 @@ export default function Dashboard({ period }) {
         <EarningsChart data={dailySeries} />
         <AccountPieChart earning={summary.earning} />
       </div>
+
+      {showOBModal && (
+        <OpeningBalanceModal 
+          period={period} 
+          onClose={() => setShowOBModal(false)}
+          onSaved={() => {
+            setShowOBModal(false);
+            setRefresh(r => r + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
