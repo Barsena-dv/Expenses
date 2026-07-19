@@ -1,19 +1,23 @@
 import { useState } from "react";
 import RideForm from "./RideForm.jsx";
 import ExpenseForm from "./ExpenseForm.jsx";
+import { cacheBust } from "../api.js";
 
-export default function FAB({ defaultDate, onSaved }) {
-  const [open, setOpen] = useState(false);
+export default function FAB({ defaultDate, onSaved, period }) {
+  const [open,  setOpen]  = useState(false);
   const [modal, setModal] = useState(null); // "ride" | "expense" | null
 
-  const openModal = (type) => {
-    setModal(type);
-    setOpen(false);
-  };
-
+  const openModal  = (type) => { setModal(type); setOpen(false); };
   const closeModal = () => setModal(null);
 
   const handleSaved = () => {
+    // Bust all caches for the current period so every page refreshes
+    if (period) {
+      cacheBust(`rides-${period.year}-${period.month}`);
+      cacheBust(`expenses-${period.year}-${period.month}`);
+      cacheBust(`dashboard-${period.year}-${period.month}`);
+      cacheBust(`year-${period.year}`);
+    }
     onSaved();
     closeModal();
   };

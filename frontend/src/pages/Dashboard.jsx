@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api.js";
+import api, { cacheGet, cacheSet } from "../api.js";
 import SummaryCards from "../components/SummaryCards.jsx";
 import EarningsChart from "../components/EarningsChart.jsx";
 import AccountPieChart from "../components/AccountPieChart.jsx";
@@ -10,37 +10,34 @@ const MONTHS = [
   "July","August","September","October","November","December"
 ];
 
-function daysInMonth(year, month) {
-  return new Date(year, month, 0).getDate();
-}
-
 export default function Dashboard({ period }) {
-  const [summary, setSummary] = useState(null);
+  const [summary,     setSummary]     = useState(null);
   const [dailySeries, setDailySeries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading,     setLoading]     = useState(true);
   const [showOBModal, setShowOBModal] = useState(false);
-  const [refresh, setRefresh] = useState(0);
+  const [refresh,     setRefresh]     = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const [{ data: summaryData }, { data: rides }, { data: expenses }] = await Promise.all([
-        api.get("/summary/month", { params: period }),
-        api.get("/rides", { params: period }),
-        api.get("/expenses", { params: period }),
-      ]);
+
+      const cacheKey = `dashboard-${period.year}-${period.month}-${refresh}`;
+      const cached = cacheGet(cacheKey);
+      if (cached) {
+        setSummary(cached.summary);
+        setDailySeries(cached.dailySeries);
+        setLoading(false);
+        return;
+      }
+
+      // Single request replaces 3 parallel calls
+      const { data } = await api.get("/summary/month-full", { params: period });
       if (cancelled) return;
-      setSummary(summaryData);
-      const dim = daysInMonth(period.year, period.month);
-      const days = Array.from({ length: dim }, (_, i) => ({ day: i + 1, earning: 0, expense: 0, km: 0 }));
-      rides.forEach((r) => { 
-        const d = new Date(r.date).getUTCDate(); 
-        days[d - 1].earning += r.fare; 
-        days[d - 1].km += (r.km || 0);
-      });
-      expenses.forEach((e) => { const d = new Date(e.date).getUTCDate(); days[d - 1].expense += e.amount; });
-      setDailySeries(days);
+
+      cacheSet(cacheKey, data);
+      setSummary(data.summary);
+      setDailySeries(data.dailySeries);
       setLoading(false);
     }
     load();
@@ -97,8 +94,8 @@ export default function Dashboard({ period }) {
       </div>
 
       {showOBModal && (
-        <OpeningBalanceModal 
-          period={period} 
+        <OpeningBalanceModal
+          period={period}
           onClose={() => setShowOBModal(false)}
           onSaved={() => {
             setShowOBModal(false);

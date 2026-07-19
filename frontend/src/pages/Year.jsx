@@ -1,16 +1,29 @@
 import { useEffect, useState } from "react";
-import api from "../api.js";
+import api, { cacheGet, cacheSet } from "../api.js";
 
 export default function Year({ year }) {
-  const [rows, setRows] = useState([]);
+  const [rows,    setRows]    = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
+
+      const cacheKey = `year-${year}`;
+      const cached = cacheGet(cacheKey);
+      if (cached) {
+        setRows(cached);
+        setLoading(false);
+        return;
+      }
+
       const { data } = await api.get("/summary/year", { params: { year } });
-      if (!cancelled) { setRows(data); setLoading(false); }
+      if (!cancelled) {
+        cacheSet(cacheKey, data);
+        setRows(data);
+        setLoading(false);
+      }
     }
     load();
     return () => { cancelled = true; };
