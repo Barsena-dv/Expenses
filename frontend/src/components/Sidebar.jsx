@@ -63,7 +63,7 @@ export default function Sidebar({ period, setPeriod }) {
 
       {/* ── Mobile Top Bar ── */}
       <header className="topbar">
-        <div className="sidebar-brand" style={{ border: "none", padding: 0 }}>
+        <div className="topbar-left">
           <div className="brand-logo">SL</div>
           <div className="brand-title">Shift Ledger</div>
         </div>
@@ -91,7 +91,7 @@ export default function Sidebar({ period, setPeriod }) {
             className={({ isActive }) => `mobile-nav-item${isActive ? " active" : ""}`}
           >
             <span className="mobile-nav-icon">{icon}</span>
-            <span>{label}</span>
+            <span className="mobile-nav-label">{label}</span>
           </NavLink>
         ))}
       </nav>

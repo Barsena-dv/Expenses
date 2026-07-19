@@ -76,8 +76,8 @@ export default function Dashboard({ period }) {
           <h1 className="page-title">{monthName} {period.year}</h1>
           <div className="page-subtitle">Your monthly earnings overview</div>
         </div>
-        <div className="page-header-actions" style={{ display: "flex", gap: "8px" }}>
-          <button className="btn-ghost" onClick={() => setShowOBModal(true)} style={{ padding: "8px 12px", fontSize: 13, border: "1px solid var(--border)", borderRadius: "var(--r-md)", background: "transparent", color: "var(--text)", cursor: "pointer" }}>
+        <div className="page-header-actions">
+          <button className="btn btn-ghost" onClick={() => setShowOBModal(true)}>
             ⚙️ Balances
           </button>
           <button className="btn-download" onClick={handleDownload}>
